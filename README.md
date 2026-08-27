@@ -6,19 +6,20 @@ This project develops a machine learning-based predictive maintenance system for
 
 The system uses a **Random Forest Classifier** to predict whether a machine is likely to experience failure based on parameters such as temperature, rotational speed, torque, tool wear, and machine type.
 
-A **Streamlit dashboard** is also developed to provide an interactive interface for real-time machine failure prediction.
+A **Streamlit dashboard** is also developed to provide an interactive interface for machine failure prediction.
 
 ---
 
 ## 🎯 Objective
 
-The main objective of this project is to:
+The main objectives of this project are to:
 
-- Predict machine failure before it occurs.
+- Predict potential machine failure before it occurs.
 - Identify important machine operating parameters associated with failure.
+- Compare machine learning models for failure prediction.
 - Optimize the classification threshold to improve failure detection.
-- Provide an interpretable machine-learning-based maintenance decision system.
-- Develop an interactive dashboard for practical use.
+- Interpret the model predictions using feature importance.
+- Provide an interactive dashboard for practical use.
 
 ---
 
@@ -26,13 +27,13 @@ The main objective of this project is to:
 
 The project uses the **AI4I 2020 Predictive Maintenance Dataset**.
 
-### Dataset size
+### Dataset Size
 
 - Total samples: **10,000**
 - Total original features: **14**
 - Target variable: **Machine failure**
 
-### Main input parameters
+### Main Input Parameters
 
 - Machine Type
 - Air temperature [K]
@@ -60,7 +61,8 @@ The dataset also contains failure-mode indicators such as:
 - Scikit-learn
 - Streamlit
 - Random Forest
-- Git/GitHub
+- Git
+- GitHub
 
 ---
 
@@ -77,7 +79,9 @@ Exploratory Data Analysis
      ↓
 Data Visualization
      ↓
-Random Forest Model
+Machine Learning Model
+     ↓
+Feature Importance Analysis
      ↓
 Model Improvement
      ↓
