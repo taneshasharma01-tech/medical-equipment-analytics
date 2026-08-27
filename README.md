@@ -18,7 +18,7 @@ The main objectives of this project are to:
 - Identify important machine operating parameters associated with failure.
 - Compare machine learning models for failure prediction.
 - Optimize the classification threshold to improve failure detection.
-- Interpret the model predictions using feature importance.
+- Interpret model predictions using feature importance.
 - Provide an interactive dashboard for practical use.
 
 ---
