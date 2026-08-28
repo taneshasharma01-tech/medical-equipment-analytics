@@ -10,7 +10,7 @@ A **Streamlit dashboard** is also developed to provide an interactive interface 
 
 ---
 
-## 🎯 Objective
+## 🎯 Objectives
 
 The main objectives of this project are to:
 
