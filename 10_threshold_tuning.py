@@ -5,6 +5,8 @@ from sklearn.model_selection import train_test_split
 from sklearn.compose import ColumnTransformer
 from sklearn.preprocessing import OneHotEncoder
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.pipeline import Pipeline
+
 from sklearn.metrics import (
     classification_report,
     confusion_matrix,
@@ -23,26 +25,8 @@ print("Dataset shape:", df.shape)
 # 2. FEATURES AND TARGET
 # ============================================================
 
-X = df.drop(columns=[
-    "UDI",
-    "Product ID",
-    "Machine failure",
-    "TWF",
-    "HDF",
-    "PWF",
-    "OSF",
-    "RNF"
-])
-
-y = df["Machine failure"]
-
-# ============================================================
-# 3. IDENTIFY COLUMNS
-# ============================================================
-
-categorical_features = ["Type"]
-
-numerical_features = [
+features = [
+    "Type",
     "Air temperature [K]",
     "Process temperature [K]",
     "Rotational speed [rpm]",
@@ -50,26 +34,17 @@ numerical_features = [
     "Tool wear [min]"
 ]
 
-# ============================================================
-# 4. PREPROCESSING
-# ============================================================
+target = "Machine failure"
 
-preprocessor = ColumnTransformer(
-    transformers=[
-        ("numerical", "passthrough", numerical_features),
-        ("categorical", OneHotEncoder(handle_unknown="ignore"),
-         categorical_features)
-    ]
-)
-
-X_processed = preprocessor.fit_transform(X)
+X = df[features]
+y = df[target]
 
 # ============================================================
-# 5. TRAIN-TEST SPLIT
+# 3. TRAIN-TEST SPLIT
 # ============================================================
 
 X_train, X_test, y_train, y_test = train_test_split(
-    X_processed,
+    X,
     y,
     test_size=0.20,
     random_state=42,
@@ -80,10 +55,25 @@ print("\nTraining samples:", len(X_train))
 print("Testing samples:", len(X_test))
 
 # ============================================================
-# 6. TRAIN RANDOM FOREST
+# 4. PREPROCESSING
 # ============================================================
 
-print("\nTraining Random Forest...")
+preprocessor = ColumnTransformer(
+    transformers=[
+        (
+            "categorical",
+            OneHotEncoder(
+                handle_unknown="ignore"
+            ),
+            ["Type"]
+        )
+    ],
+    remainder="passthrough"
+)
+
+# ============================================================
+# 5. RANDOM FOREST MODEL
+# ============================================================
 
 model = RandomForestClassifier(
     n_estimators=200,
@@ -92,38 +82,86 @@ model = RandomForestClassifier(
     n_jobs=-1
 )
 
-model.fit(X_train, y_train)
+# ============================================================
+# 6. PIPELINE
+# ============================================================
+
+pipeline = Pipeline(
+    steps=[
+        ("preprocessor", preprocessor),
+        ("model", model)
+    ]
+)
+
+# ============================================================
+# 7. TRAIN MODEL
+# ============================================================
+
+print("\nTraining Random Forest...")
+
+pipeline.fit(
+    X_train,
+    y_train
+)
 
 print("Training completed.")
 
 # ============================================================
-# 7. PREDICT PROBABILITIES
+# 8. PREDICT PROBABILITIES
 # ============================================================
 
-y_probability = model.predict_proba(X_test)[:, 1]
+y_probability = pipeline.predict_proba(X_test)[:, 1]
+
+roc_auc = roc_auc_score(
+    y_test,
+    y_probability
+)
 
 print("\nROC-AUC:")
-print(roc_auc_score(y_test, y_probability))
+print(f"{roc_auc:.4f}")
 
 # ============================================================
-# 8. TEST DIFFERENT THRESHOLDS
+# 9. TEST DIFFERENT THRESHOLDS
 # ============================================================
 
-thresholds = [0.10, 0.15, 0.20, 0.25, 0.30, 0.35,
-              0.40, 0.45, 0.50, 0.55, 0.60]
+thresholds = [
+    0.10, 0.15, 0.20, 0.25,
+    0.30, 0.35, 0.40, 0.45,
+    0.50, 0.55, 0.60
+]
 
 print("\n===== THRESHOLD ANALYSIS =====")
 
+recalls = []
+precisions = []
+
 for threshold in thresholds:
 
-    y_pred = (y_probability >= threshold).astype(int)
+    y_pred = (
+        y_probability >= threshold
+    ).astype(int)
 
-    cm = confusion_matrix(y_test, y_pred)
+    cm = confusion_matrix(
+        y_test,
+        y_pred
+    )
 
     tn, fp, fn, tp = cm.ravel()
 
-    recall = tp / (tp + fn) if (tp + fn) > 0 else 0
-    precision = tp / (tp + fp) if (tp + fp) > 0 else 0
+    recall = (
+        tp / (tp + fn)
+        if (tp + fn) > 0
+        else 0
+    )
+
+    precision = (
+        tp / (tp + fp)
+        if (tp + fp) > 0
+        else 0
+    )
+
+    recalls.append(recall)
+    precisions.append(precision)
 
     print(
         f"Threshold: {threshold:.2f} | "
@@ -133,7 +171,7 @@ for threshold in thresholds:
     )
 
 # ============================================================
-# 9. SELECT THRESHOLD
+# 10. SELECT THRESHOLD
 # ============================================================
 
 selected_threshold = 0.30
@@ -143,11 +181,14 @@ y_pred_final = (
 ).astype(int)
 
 # ============================================================
-# 10. FINAL RESULTS
+# 11. FINAL RESULTS
 # ============================================================
 
 print("\n============================================")
-print("FINAL RESULTS AT THRESHOLD =", selected_threshold)
+print(
+    f"FINAL RESULTS AT THRESHOLD = "
+    f"{selected_threshold}"
+)
 print("============================================")
 
 print("\n===== CLASSIFICATION REPORT =====")
@@ -156,34 +197,25 @@ print(
     classification_report(
         y_test,
         y_pred_final,
-        target_names=["Normal", "Failure"]
+        target_names=[
+            "Normal",
+            "Failure"
+        ]
     )
 )
 
 print("\n===== CONFUSION MATRIX =====")
 
-print(confusion_matrix(y_test, y_pred_final))
+print(
+    confusion_matrix(
+        y_test,
+        y_pred_final
+    )
+)
 
 # ============================================================
-# 11. SAVE THRESHOLD COMPARISON PLOT
+# 12. SAVE THRESHOLD COMPARISON PLOT
 # ============================================================
-
-recalls = []
-precisions = []
-
-for threshold in thresholds:
-
-    y_pred = (y_probability >= threshold).astype(int)
-
-    cm = confusion_matrix(y_test, y_pred)
-
-    tn, fp, fn, tp = cm.ravel()
-
-    recall = tp / (tp + fn) if (tp + fn) > 0 else 0
-    precision = tp / (tp + fp) if (tp + fp) > 0 else 0
-
-    recalls.append(recall)
-    precisions.append(precision)
 
 plt.figure(figsize=(8, 5))
 
@@ -207,10 +239,17 @@ plt.axvline(
     label=f"Selected Threshold = {selected_threshold}"
 )
 
-plt.xlabel("Classification Threshold")
-plt.ylabel("Score")
+plt.xlabel(
+    "Classification Threshold"
+)
 
-plt.title("Precision-Recall Trade-off")
+plt.ylabel(
+    "Score"
+)
+
+plt.title(
+    "Precision-Recall Trade-off"
+)
 
 plt.legend()
 

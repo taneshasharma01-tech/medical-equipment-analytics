@@ -104,6 +104,13 @@ model.fit(X_processed, y)
 
 
 # ============================================================
+# SELECTED DECISION THRESHOLD
+# ============================================================
+
+threshold = 0.30
+
+
+# ============================================================
 # SIDEBAR INPUT
 # ============================================================
 
@@ -166,7 +173,7 @@ predict_button = st.sidebar.button(
 
 
 # ============================================================
-# DASHBOARD INFORMATION
+# DASHBOARD OVERVIEW
 # ============================================================
 
 col1, col2, col3 = st.columns(3)
@@ -216,7 +223,9 @@ if predict_button:
         new_machine_processed
     )[0][1]
 
-    threshold = 0.30
+    # ========================================================
+    # CLASSIFICATION
+    # ========================================================
 
     if failure_probability >= threshold:
 
@@ -259,8 +268,10 @@ if predict_button:
 
         if risk == "HIGH":
             st.error(f"Risk Level: {risk}")
+
         elif risk == "MEDIUM":
             st.warning(f"Risk Level: {risk}")
+
         else:
             st.success(f"Risk Level: {risk}")
 
@@ -309,9 +320,37 @@ with info_col1:
     st.write("**Algorithm:** Random Forest")
     st.write("**Number of trees:** 200")
     st.write("**Decision threshold:** 0.30")
+    st.write("**Failure Precision:** 51.35%")
+    st.write("**Failure F1-score:** 63.69%")
 
 with info_col2:
 
-    st.write("**Failure Recall:** 79.41%")
-    st.write("**Specificity:** 97.41%")
-    st.write("**ROC-AUC:** 0.9613")
+    st.write("**Failure Recall:** 83.82%")
+    st.write("**Specificity:** 97.20%")
+    st.write("**False Positive Rate:** 2.80%")
+    st.write("**False Negative Rate:** 16.18%")
+    st.write("**ROC-AUC:** 0.9721")
+
+
+# ============================================================
+# INTERPRETATION
+# ============================================================
+
+st.divider()
+
+st.subheader("Model Interpretation")
+
+st.write(
+    "The decision threshold of 0.30 is selected to prioritize "
+    "failure detection over precision."
+)
+
+st.write(
+    "On the evaluation test set, the model detected 57 out of "
+    "68 actual failures, corresponding to an 83.82% failure recall."
+)
+
+st.write(
+    "The model correctly identified 1,878 out of 1,932 normal "
+    "machines, giving a specificity of 97.20%."
+)
