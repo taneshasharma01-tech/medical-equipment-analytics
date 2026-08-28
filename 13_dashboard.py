@@ -1,6 +1,5 @@
 import streamlit as st
 import pandas as pd
-import numpy as np
 
 from sklearn.compose import ColumnTransformer
 from sklearn.preprocessing import OneHotEncoder
@@ -14,45 +13,7 @@ from sklearn.ensemble import RandomForestClassifier
 st.set_page_config(
     page_title="Predictive Maintenance System",
     page_icon="⚙️",
-    layout="wide",
-    initial_sidebar_state="expanded"
-)
-
-
-# ============================================================
-# CUSTOM CSS
-# ============================================================
-
-st.markdown(
-    """
-    <style>
-    .main-title {
-        font-size: 42px;
-        font-weight: 700;
-        margin-bottom: 5px;
-    }
-
-    .subtitle {
-        font-size: 18px;
-        margin-bottom: 25px;
-    }
-
-    .risk-box {
-        padding: 18px;
-        border-radius: 10px;
-        text-align: center;
-        font-size: 22px;
-        font-weight: 600;
-    }
-
-    .section-title {
-        font-size: 28px;
-        font-weight: 650;
-        margin-top: 20px;
-    }
-    </style>
-    """,
-    unsafe_allow_html=True
+    layout="wide"
 )
 
 
@@ -60,17 +21,11 @@ st.markdown(
 # TITLE
 # ============================================================
 
-st.markdown(
-    '<div class="main-title">⚙️ Predictive Maintenance System</div>',
-    unsafe_allow_html=True
-)
+st.title("⚙️ Predictive Maintenance System")
 
-st.markdown(
-    '<div class="subtitle">'
-    'Machine failure prediction using Random Forest and '
-    'sensor-based operating parameters.'
-    '</div>',
-    unsafe_allow_html=True
+st.write(
+    "Machine failure prediction using Random Forest "
+    "and sensor-based operating parameters."
 )
 
 st.divider()
@@ -82,10 +37,7 @@ st.divider()
 
 @st.cache_data
 def load_data():
-
-    data = pd.read_csv("data/ai4i2020.csv")
-
-    return data
+    return pd.read_csv("data/ai4i2020.csv")
 
 
 df = load_data()
@@ -114,9 +66,7 @@ y = df[target]
 # FEATURE TYPES
 # ============================================================
 
-categorical_features = [
-    "Type"
-]
+categorical_features = ["Type"]
 
 numerical_features = [
     "Air temperature [K]",
@@ -140,24 +90,18 @@ preprocessor = ColumnTransformer(
         ),
         (
             "categorical",
-            OneHotEncoder(
-                handle_unknown="ignore"
-            ),
+            OneHotEncoder(handle_unknown="ignore"),
             categorical_features
         )
     ]
 )
 
 
-# ============================================================
-# PROCESS DATA
-# ============================================================
-
 X_processed = preprocessor.fit_transform(X)
 
 
 # ============================================================
-# TRAIN RANDOM FOREST
+# TRAIN RANDOM FOREST MODEL
 # ============================================================
 
 @st.cache_resource
@@ -186,7 +130,7 @@ threshold = 0.30
 
 
 # ============================================================
-# DATASET RANGES
+# DATASET PARAMETER RANGES
 # ============================================================
 
 air_min = float(df["Air temperature [K]"].min())
@@ -201,8 +145,8 @@ speed_max = int(df["Rotational speed [rpm]"].max())
 torque_min = float(df["Torque [Nm]"].min())
 torque_max = float(df["Torque [Nm]"].max())
 
-wear_min = int(df["Tool wear [min]"].min())
-wear_max = int(df["Tool wear [min]"].max())
+toolwear_min = int(df["Tool wear [min]"].min())
+toolwear_max = int(df["Tool wear [min]"].max())
 
 
 # ============================================================
@@ -211,92 +155,138 @@ wear_max = int(df["Tool wear [min]"].max())
 
 st.sidebar.header("Machine Parameters")
 
-st.sidebar.caption(
+st.sidebar.write(
     "Enter operating parameters and run the prediction."
 )
 
 
-# Machine type
+# ============================================================
+# MACHINE TYPE
+# ============================================================
 
 machine_type = st.sidebar.selectbox(
     "Machine Type",
-    sorted(df["Type"].unique())
+    ["L", "M", "H"]
 )
 
 
-# Air temperature
+# ============================================================
+# AIR TEMPERATURE
+# ============================================================
 
 air_temperature = st.sidebar.number_input(
     "Air temperature [K]",
     min_value=air_min,
     max_value=air_max,
-    value=float(df["Air temperature [K]"].median()),
+    value=300.0,
     step=0.1,
     format="%.1f"
 )
 
 
-# Process temperature
+# ============================================================
+# PROCESS TEMPERATURE
+# ============================================================
 
 process_temperature = st.sidebar.number_input(
     "Process temperature [K]",
     min_value=process_min,
     max_value=process_max,
-    value=float(df["Process temperature [K]"].median()),
+    value=310.0,
     step=0.1,
     format="%.1f"
 )
 
 
-# Rotational speed
+# ============================================================
+# ROTATIONAL SPEED
+# ============================================================
 
 rotational_speed = st.sidebar.number_input(
     "Rotational speed [rpm]",
     min_value=speed_min,
     max_value=speed_max,
-    value=int(df["Rotational speed [rpm]"].median()),
-    step=10
+    value=1500,
+    step=1
 )
 
 
-# Torque
+# ============================================================
+# TORQUE
+# ============================================================
 
 torque = st.sidebar.number_input(
     "Torque [Nm]",
     min_value=torque_min,
     max_value=torque_max,
-    value=float(df["Torque [Nm]"].median()),
+    value=40.0,
     step=0.1,
     format="%.1f"
 )
 
 
-# Tool wear
+# ============================================================
+# TOOL WEAR
+# ============================================================
 
 tool_wear = st.sidebar.number_input(
     "Tool wear [min]",
-    min_value=wear_min,
-    max_value=wear_max,
-    value=int(df["Tool wear [min]"].median()),
+    min_value=toolwear_min,
+    max_value=toolwear_max,
+    value=100,
     step=1
 )
 
 
-st.sidebar.divider()
+# ============================================================
+# SHOW VALID RANGES
+# ============================================================
 
+with st.sidebar.expander("Valid parameter ranges"):
+
+    st.write(
+        f"**Air temperature:** "
+        f"{air_min:.1f} – {air_max:.1f} K"
+    )
+
+    st.write(
+        f"**Process temperature:** "
+        f"{process_min:.1f} – {process_max:.1f} K"
+    )
+
+    st.write(
+        f"**Rotational speed:** "
+        f"{speed_min} – {speed_max} rpm"
+    )
+
+    st.write(
+        f"**Torque:** "
+        f"{torque_min:.1f} – {torque_max:.1f} Nm"
+    )
+
+    st.write(
+        f"**Tool wear:** "
+        f"{toolwear_min} – {toolwear_max} min"
+    )
+
+
+# ============================================================
+# PREDICTION BUTTON
+# ============================================================
 
 predict_button = st.sidebar.button(
-    "🔍 Predict Machine Failure",
+    "Predict Machine Failure",
     type="primary",
     use_container_width=True
 )
 
 
 # ============================================================
-# DATASET OVERVIEW
+# DASHBOARD OVERVIEW
 # ============================================================
 
 col1, col2, col3 = st.columns(3)
+
 
 with col1:
 
@@ -308,11 +298,9 @@ with col1:
 
 with col2:
 
-    failure_rate = y.mean() * 100
-
     st.metric(
         "Failure Rate",
-        f"{failure_rate:.2f}%"
+        f"{y.mean() * 100:.2f}%"
     )
 
 
@@ -334,7 +322,7 @@ st.divider()
 if predict_button:
 
     # --------------------------------------------------------
-    # NEW MACHINE DATA
+    # CREATE NEW MACHINE DATA
     # --------------------------------------------------------
 
     new_machine = pd.DataFrame({
@@ -364,7 +352,7 @@ if predict_button:
 
 
     # --------------------------------------------------------
-    # PREPROCESS
+    # PREPROCESS NEW MACHINE
     # --------------------------------------------------------
 
     new_machine_processed = preprocessor.transform(
@@ -381,11 +369,6 @@ if predict_button:
     )[0][1]
 
 
-    probability_percent = (
-        failure_probability * 100
-    )
-
-
     # --------------------------------------------------------
     # CLASSIFICATION
     # --------------------------------------------------------
@@ -393,47 +376,48 @@ if predict_button:
     if failure_probability >= threshold:
 
         prediction = "FAILURE"
-        risk = "HIGH"
-
-    elif failure_probability >= 0.15:
-
-        prediction = "NORMAL"
-        risk = "MEDIUM"
 
     else:
 
         prediction = "NORMAL"
+
+
+    # --------------------------------------------------------
+    # RISK LEVEL
+    # --------------------------------------------------------
+
+    if failure_probability < 0.15:
+
         risk = "LOW"
+
+    elif failure_probability < threshold:
+
+        risk = "MEDIUM"
+
+    else:
+
+        risk = "HIGH"
 
 
     # ========================================================
     # PREDICTION RESULT
     # ========================================================
 
-    st.markdown(
-        '<div class="section-title">Prediction Result</div>',
-        unsafe_allow_html=True
-    )
-
-    st.write("")
+    st.header("Prediction Result")
 
 
     result_col1, result_col2, result_col3 = st.columns(3)
 
 
     # --------------------------------------------------------
-    # PROBABILITY
+    # FAILURE PROBABILITY
     # --------------------------------------------------------
 
     with result_col1:
 
         st.metric(
             "Failure Probability",
-            f"{probability_percent:.2f}%"
-        )
-
-        st.progress(
-            min(failure_probability, 1.0)
+            f"{failure_probability * 100:.2f}%"
         )
 
 
@@ -446,13 +430,13 @@ if predict_button:
         if prediction == "FAILURE":
 
             st.error(
-                f"🚨 Prediction: {prediction}"
+                f"Prediction: {prediction}"
             )
 
         else:
 
             st.success(
-                f"✅ Prediction: {prediction}"
+                f"Prediction: {prediction}"
             )
 
 
@@ -465,71 +449,20 @@ if predict_button:
         if risk == "HIGH":
 
             st.error(
-                f"🔴 Risk Level: {risk}"
+                f"Risk Level: {risk}"
             )
 
         elif risk == "MEDIUM":
 
             st.warning(
-                f"🟠 Risk Level: {risk}"
+                f"Risk Level: {risk}"
             )
 
         else:
 
             st.success(
-                f"🟢 Risk Level: {risk}"
+                f"Risk Level: {risk}"
             )
-
-
-    # ========================================================
-    # INPUT SUMMARY
-    # ========================================================
-
-    st.subheader("Machine Operating Parameters")
-
-    input_col1, input_col2, input_col3, input_col4, input_col5 = (
-        st.columns(5)
-    )
-
-
-    with input_col1:
-
-        st.metric(
-            "Machine Type",
-            machine_type
-        )
-
-
-    with input_col2:
-
-        st.metric(
-            "Air Temp.",
-            f"{air_temperature:.1f} K"
-        )
-
-
-    with input_col3:
-
-        st.metric(
-            "Process Temp.",
-            f"{process_temperature:.1f} K"
-        )
-
-
-    with input_col4:
-
-        st.metric(
-            "Speed",
-            f"{rotational_speed} rpm"
-        )
-
-
-    with input_col5:
-
-        st.metric(
-            "Tool Wear",
-            f"{tool_wear} min"
-        )
 
 
     # ========================================================
@@ -542,23 +475,14 @@ if predict_button:
     if prediction == "FAILURE":
 
         st.warning(
-            "⚠️ Potential failure condition detected. "
-            "Consider inspection and preventive maintenance "
-            "before continued operation."
-        )
-
-    elif risk == "MEDIUM":
-
-        st.info(
-            "⚠️ Moderate failure risk detected. "
-            "Continue monitoring machine parameters and "
-            "consider preventive inspection."
+            "Potential failure condition detected. "
+            "Consider inspection and preventive maintenance."
         )
 
     else:
 
         st.success(
-            "✅ No high-risk failure condition detected. "
+            "No high-risk failure condition detected. "
             "Continue normal operation and monitoring."
         )
 
@@ -566,8 +490,8 @@ if predict_button:
 else:
 
     st.info(
-        "Enter machine parameters in the sidebar and click "
-        "'Predict Machine Failure'."
+        "Enter machine parameters in the sidebar "
+        "and click 'Predict Machine Failure'."
     )
 
 
@@ -577,10 +501,7 @@ else:
 
 st.divider()
 
-st.markdown(
-    '<div class="section-title">Model Information</div>',
-    unsafe_allow_html=True
-)
+st.subheader("Model Information")
 
 
 info_col1, info_col2 = st.columns(2)
@@ -592,11 +513,13 @@ with info_col1:
 
     st.write("**Number of trees:** 200")
 
-    st.write("**Class weighting:** Balanced")
-
     st.write("**Decision threshold:** 0.30")
 
+    st.write("**Class weighting:** Balanced")
+
     st.write("**Failure Precision:** 51.35%")
+
+    st.write("**Failure F1-score:** 63.69%")
 
 
 with info_col2:
@@ -618,101 +541,57 @@ with info_col2:
 
 st.divider()
 
-st.markdown(
-    '<div class="section-title">Model Interpretation</div>',
-    unsafe_allow_html=True
+st.subheader("Model Interpretation")
+
+
+st.write(
+    "The decision threshold of 0.30 is selected to "
+    "prioritize failure detection over precision."
 )
 
 
 st.write(
-    "The decision threshold of 0.30 is selected to prioritize "
-    "failure detection over precision."
+    "On the evaluation test set, the model detected "
+    "57 out of 68 actual failures, corresponding to "
+    "an 83.82% failure recall."
 )
 
 
 st.write(
-    "On the evaluation test set, the model detected 57 out of "
-    "68 actual failures, corresponding to an 83.82% failure recall."
-)
-
-
-st.write(
-    "The model correctly identified 1,878 out of 1,932 normal "
-    "machines, giving a specificity of 97.20%."
+    "The model correctly identified 1,878 out of "
+    "1,932 normal machines, giving a specificity "
+    "of 97.20%."
 )
 
 
 # ============================================================
-# FEATURE IMPORTANCE
+# INPUT SUMMARY
 # ============================================================
 
-st.divider()
+if predict_button:
 
-st.markdown(
-    '<div class="section-title">Feature Importance</div>',
-    unsafe_allow_html=True
-)
+    st.divider()
 
+    st.subheader("Machine Input Summary")
 
-try:
+    summary_df = pd.DataFrame({
+        "Parameter": [
+            "Machine Type",
+            "Air Temperature [K]",
+            "Process Temperature [K]",
+            "Rotational Speed [rpm]",
+            "Torque [Nm]",
+            "Tool Wear [min]"
+        ],
 
-    categorical_encoder = (
-        preprocessor
-        .named_transformers_["categorical"]
-    )
+        "Value": [
+            machine_type,
+            f"{air_temperature:.1f}",
+            f"{process_temperature:.1f}",
+            f"{rotational_speed:.0f}",
+            f"{torque:.1f}",
+            f"{tool_wear:.0f}"
+        ]
+    })
 
-    categorical_names = (
-        categorical_encoder
-        .get_feature_names_out(
-            categorical_features
-        )
-    )
-
-    feature_names = (
-        numerical_features
-        + list(categorical_names)
-    )
-
-    importances = model.feature_importances_
-
-    importance_df = pd.DataFrame({
-
-        "Feature": feature_names,
-
-        "Importance": importances
-
-    }).sort_values(
-        "Importance",
-        ascending=False
-    )
-
-    importance_df["Importance"] = (
-        importance_df["Importance"] * 100
-    )
-
-    st.bar_chart(
-        importance_df.set_index("Feature")["Importance"]
-    )
-
-    st.caption(
-        "Feature importance values represent the relative "
-        "contribution of input variables to the Random Forest model."
-    )
-
-except Exception:
-
-    st.info(
-        "Feature importance visualization is unavailable."
-    )
-
-
-# ============================================================
-# FOOTER
-# ============================================================
-
-st.divider()
-
-st.caption(
-    "Medical Equipment Analytics | "
-    "Machine Learning-Based Predictive Maintenance System"
-)
+    st.table(summary_df)
