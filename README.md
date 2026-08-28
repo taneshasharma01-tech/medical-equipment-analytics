@@ -10,7 +10,8 @@ The system uses a **Random Forest classifier** to estimate machine failure proba
 
 ## 🚀 Live Demo
 
-👉 **Live Dashboard:**  
+👉 **Live Dashboard:**
+
 https://medical-equipment-analytics-7fg3xc8qeme69mj4jenwbhw.streamlit.app/
 
 ---
