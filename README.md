@@ -1,98 +1,92 @@
-# Predictive Maintenance System for Medical Equipment
+# Medical Equipment Analytics
 
-## 📌 Project Overview
+## Machine Learning-Based Predictive Maintenance System
 
-This project develops a machine learning-based predictive maintenance system for detecting potential machine failures using sensor-based operating parameters.
+A machine learning-based predictive maintenance system for identifying potential machine failures using sensor-based operating parameters.
 
-The system uses a **Random Forest Classifier** to predict whether a machine is likely to experience failure based on parameters such as temperature, rotational speed, torque, tool wear, and machine type.
-
-A **Streamlit dashboard** is also developed to provide an interactive interface for machine failure prediction.
+The system uses a **Random Forest classifier** to estimate machine failure probability and provides an interactive **Streamlit dashboard** for real-time prediction and risk assessment.
 
 ---
 
-## 🎯 Objectives
+## 🚀 Live Demo
 
-The main objectives of this project are to:
-
-- Predict potential machine failure before it occurs.
-- Identify important machine operating parameters associated with failure.
-- Compare machine learning models for failure prediction.
-- Optimize the classification threshold to improve failure detection.
-- Interpret model predictions using feature importance.
-- Provide an interactive dashboard for practical use.
+👉 **Live Dashboard:**  
+https://medical-equipment-analytics-7fg3xc8qeme69mj4jenwbhw.streamlit.app/
 
 ---
 
-## 📊 Dataset
+## Problem Statement
+
+Unexpected equipment failure can lead to machine downtime, increased maintenance costs, and reduced operational efficiency.
+
+The objective of this project is to develop a predictive maintenance system that uses machine operating parameters to identify machines that may be at risk of failure before an actual failure occurs.
+
+---
+
+## Objective
+
+- Analyze machine operating parameters associated with machine failure.
+- Explore relationships between sensor variables and machine failure.
+- Develop a machine-learning classification model.
+- Optimize the decision threshold for improved failure detection.
+- Interpret important predictive features.
+- Deploy an interactive machine failure prediction dashboard.
+
+---
+
+## Dataset
 
 The project uses the **AI4I 2020 Predictive Maintenance Dataset**.
 
-### Dataset Size
-
-- Total samples: **10,000**
-- Total original features: **14**
-- Target variable: **Machine failure**
-
-### Main Input Parameters
+The dataset contains machine operating parameters including:
 
 - Machine Type
-- Air temperature [K]
-- Process temperature [K]
-- Rotational speed [rpm]
+- Air Temperature [K]
+- Process Temperature [K]
+- Rotational Speed [rpm]
 - Torque [Nm]
-- Tool wear [min]
+- Tool Wear [min]
 
-The dataset also contains failure-mode indicators such as:
+### Target Variable
 
-- TWF — Tool Wear Failure
-- HDF — Heat Dissipation Failure
-- PWF — Power Failure
-- OSF — Overstrain Failure
-- RNF — Random Failure
+**Machine Failure**
 
----
+- `0` → No failure
+- `1` → Machine failure
 
-## 🛠️ Technologies Used
-
-- Python
-- Pandas
-- NumPy
-- Matplotlib
-- Scikit-learn
-- Streamlit
-- Random Forest
-- Git
-- GitHub
+The dataset contains **10,000 machine observations** with an overall failure rate of approximately **3.39%**.
 
 ---
 
-## 🔄 Project Workflow
+## Machine Learning Methodology
+
+The project follows the following workflow:
 
 ```text
-Raw Dataset
-     ↓
 Data Loading
-     ↓
-Data Quality Analysis
-     ↓
+      ↓
+Data Quality Assessment
+      ↓
 Exploratory Data Analysis
-     ↓
+      ↓
 Data Visualization
-     ↓
-Machine Learning Model
-     ↓
+      ↓
+Feature Engineering / Preprocessing
+      ↓
+Model Development
+      ↓
 Feature Importance Analysis
-     ↓
+      ↓
 Model Improvement
-     ↓
+      ↓
 Model Comparison
-     ↓
-Final Model Evaluation
-     ↓
-Threshold Optimization
-     ↓
+      ↓
+Final Evaluation
+      ↓
+Decision Threshold Optimization
+      ↓
 Model Interpretation
-     ↓
-New Machine Prediction
-     ↓
-Streamlit Dashboard
+      ↓
+Interactive Dashboard
+      ↓
+Streamlit Deployment
